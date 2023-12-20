@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat App</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        .btn i {
+            margin-right: 5px;
+        }
+        
+        .custom-card {
+            width: 1000px; 
+            margin-top: 100px; 
+            margin-bottom: 100px; 
+        }
+
+        body {
+            font-family: 'Noto Sans', sans-serif;
+        }
+
+        .user-icon, .bot-icon {
+            font-size: 1.2em;
+            margin-right: 5px;
+        }
+        .chatbot-name {
+        font-size: 36px; /* Adjust the font size as needed */
+        color: #007bff; /* Blue color */
+        }
+
+        .log-text {
+            font-weight: bold;
+        }
+
+        .bot-text {
+            font-style: italic;
+        }
+     
+        #input-text {
+            height: 45px; /* Adjust the height as needed */
+        }
+    </style>
+</head>
+<body>
+    <div class="container d-flex justify-content-center align-items-center h-100">
+        <div class="card custom-card">
+            <div class="card-body">
+                <h1 class="chatbot-name">
+                    <span class="log-text">LOG</span><span class="bot-text">BOT</span>
+                </h1>
+                <div id="output" class="mb-3"></div>
+                <div class="input-group">
+                    <textarea id="input-text" class="form-control" placeholder="Enter your message"></textarea>
+                    <div class="input-group-append">
+                        <button class="btn btn-primary send-button" onclick="sendMessage()">
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Generate a unique user ID
+        const userId = Date.now().toString();
+
+        function unicodeToChar(text){
+        return text.replace(/\\u[\dA-F]{4}/gi, function(match){
+            return String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16));});
+        }
+        
+        function sendMessage() {
+            var inputText = document.getElementById("input-text").value;
+            var outputDiv = document.getElementById("output");
+
+            document.getElementById("input-text").value = "";
+            outputDiv.innerHTML += "<br><div class='user-message'><span class='user-icon'><i class='fas fa-user'></i></span> : " + inputText + "</div>";
+
+            var formData = new FormData();
+            formData.append("user_id", userId);
+            formData.append("message", inputText);
+
+            fetch("/get_response", {
+                method: "POST",
+                body: formData, // Send the form data including the file
+            })
+            .then((response) => response.text())
+            .then((data) => {
+                const botResponse = unicodeToChar(data);
+                outputDiv.innerHTML += `<div class="bot-message"><span class="bot-icon"><i class="fas fa-robot"></i></span> : ${botResponse.replaceAll("\"", "")}</div>`;
+                outputDiv.innerHTML += "<hr>"; // Add a horizontal line
+            });
+
+            document.getElementById("input-text").value = "";
+        }
+    </script>
+</body>
+</html>

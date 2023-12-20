@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="stylesheet" href="../static/style.css">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Chatbot</title>
+</head>
+<body>
+<div class="container">
+    <!-- <div class="header">
+        <h1 class="logo">
+            <span class="log-text">LOG</span><span class="bot-text">BOT</span>
+        </h1>
+    </div> -->
+    <div class="chatbox">
+        <div class="chatbox__support">
+            <div class="chatbox__header">
+                <div class="chatbox__image--header">
+                    <img src="../static/images/new_icon.png" width="40" height="40">
+                </div>
+                <div class="chatbox__content--header">
+                    <h1 class="chatbot-name">
+                        <span class="log-text">LOG</span><span class="bot-text">TRACK</span>
+                    </h1>
+                </div>
+            </div>
+            <div class="chatbox__messages">
+                <div></div>
+            </div>
+            <div class="chatbox__footer">
+                <input type="text" class="chatbox__input" placeholder="Write a message...">
+                <button class="chatbox__send--footer send__button"><img src="../static/images/send-icon-2.svg" /></button>
+            </div>
+        </div>
+        <div class="chatbox__button">
+            <button><img src="../static/images/chatbot-icon.svg" /></button>
+        </div>
+    <!-- </div>
+    <div class="subheadings">
+        <div class="subheading">
+            <h2>Subheading 1</h2>
+            <ul>
+                <li>Point 1</li>
+                <li>Point 2</li>
+                <li>Point 3</li>
+            </ul>
+        </div>
+        <div class="subheading">
+            <h2>Subheading 2</h2>
+            <ul>
+                <li>Point 1</li>
+                <li>Point 2</li>
+                <li>Point 3</li>
+            </ul>
+        </div>
+    </div>
+    <div class="arrow-container">
+        <img class="arrow" src="../static/images/arrow.png" alt="Arrow Icon">
+    </div> -->
+    
+</div>
+
+    <script>
+        const userId = Date.now().toString();
+
+        class Chatbox {
+            constructor() {
+                this.args = {
+                    openButton: document.querySelector('.chatbox__button'),
+                    chatBox: document.querySelector('.chatbox__support'),
+                    sendButton: document.querySelector('.send__button')
+                }
+
+                this.state = false;
+                this.messages = [];
+            }
+
+            unicodeToChar(text){
+            return text.replace(/\\u[\dA-F]{4}/gi, function(match){
+                return String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16));});
+            }
+
+            display() {
+                const { openButton, chatBox, sendButton } = this.args;
+
+                openButton.addEventListener('click', () => this.toggleState(chatBox))
+
+                sendButton.addEventListener('click', () => this.onSendButton(chatBox))
+
+                const inputField = chatBox.querySelector('.chatbox__input');
+                inputField.addEventListener("keyup", ({ key }) => {
+                    if (key === "Enter") {
+                        this.onSendButton(chatBox)
+                    }
+                })
+            }
+
+            toggleState(chatbox) {
+                this.state = !this.state;
+
+                if (this.state) {
+                    chatbox.classList.add('chatbox--active')
+                } else {
+                    chatbox.classList.remove('chatbox--active')
+                }
+            }
+
+            onSendButton(chatbox) {
+                const inputField = chatbox.querySelector('.chatbox__input');
+                const text = inputField.value;
+
+                var formData = new FormData();
+                formData.append("user_id", userId);
+                formData.append("message", text);
+
+                let userMessage = { name: "User", message: text };
+                this.messages.push(userMessage);
+
+                fetch('/get_response', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(data => {
+                    let botMessage = { name: "LogBot", message: this.unicodeToChar(data).replaceAll("\"", "") };
+                    this.messages.push(botMessage);
+                    this.updateChatText(chatbox);
+                    inputField.value = '';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    this.updateChatText(chatbox);
+                    inputField.value = '';
+                });
+            }
+
+            updateChatText(chatbox) {
+                let html = '';
+                this.messages.slice().forEach(item => {
+                    const messageType = item.name === "LogBot" ? "visitor" : "operator";
+                    html = `<div class="messages__item messages__item--${messageType}">${item.message}</div>` + html;
+                });
+
+                const chatMessageContainer = chatbox.querySelector('.chatbox__messages');
+                chatMessageContainer.innerHTML = html;
+            }
+        }
+
+        const chatbox = new Chatbox();
+        chatbox.display();
+
+
+    </script>
+
+</body>
+</html>
