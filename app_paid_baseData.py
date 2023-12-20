@@ -63,7 +63,7 @@ def send_email_notification(subject, body, recipient_email):
     # Close the connection
     server.quit()
 
-os.environ["OPENAI_API_KEY"] = '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'
+os.environ["OPENAI_API_KEY"] = ' '
 
 agent = create_csv_agent(
     ChatOpenAI(temperature=0, model="gpt-3.5-turbo-0613"),

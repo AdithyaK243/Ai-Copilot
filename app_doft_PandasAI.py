@@ -146,7 +146,7 @@ def create_csv(origin, destination, origin_radius, destination_radius):
     #     agent_type=AgentType.OPENAI_FUNCTIONS,
     # )
 
-    llm = OpenAI(api_token = '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')
+    llm = OpenAI(api_token = ' ')
     df = SmartDataframe(df, config={"llm": llm})
 
 def search_bot(query):
@@ -160,7 +160,7 @@ def search_bot(query):
 
     # # Extract and return the model's response
     # return response.message.content
-    openai.api_key = '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'
+    openai.api_key = ' '
     chat_completion = openai.ChatCompletion.create(stream=True,
         model='gpt-3.5-turbo', messages=[{'role': 'user', 'content': query}])
 
@@ -199,7 +199,7 @@ def send_email_notification(subject, body, recipient_email):
     # Close the connection
     server.quit()
 
-os.environ["OPENAI_API_KEY"] = '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'
+os.environ["OPENAI_API_KEY"] = ' '
 
 # agent = create_csv_agent(
 #     ChatOpenAI(temperature=0, model="gpt-3.5-turbo-0613"),
@@ -208,7 +208,7 @@ os.environ["OPENAI_API_KEY"] = 'sk-TY0M6x4S4P1HsA5WUL4TT3BlbkFJyggJ5ZVoagCa2pjPP
 #     agent_type=AgentType.OPENAI_FUNCTIONS,
 # )
 df = pd.DataFrame(columns = ['Posted', 'Pickup', 'Origin City', 'Origin State', 'Destination City', 'Destination State', 'Wt', 'Size', 'Dist', 'Truck', 'Price', 'Forecast Price', 'Price Per Mile', 'Forecast Per Mile', 'Company', 'Contact Links', 'Demand'])
-llm = OpenAI(api_token = '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')
+llm = OpenAI(api_token = ' ')
 df = SmartDataframe(df, config={"llm": llm})
 
 app = Flask(__name__)

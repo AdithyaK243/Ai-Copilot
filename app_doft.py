@@ -10,8 +10,9 @@ import os
 from langchain.llms import OpenAI
 from langchain.chat_models import ChatOpenAI
 from langchain.agents.agent_types import AgentType
+from pandasai import SmartDataframe
+from pandasai.llm import OpenAI
 import openai
-from selenium.webdriver.chrome.service import Service
 
 import smtplib
 from email.mime.text import MIMEText
@@ -44,14 +45,8 @@ def convert_age_to_datetime(age_str):
 def create_csv(origin, destination, origin_radius, destination_radius):
     if origin_radius == '_': origin_radius = 100
     if destination_radius == '_': destination_radius = 100
-    global agent
-
-    service = Service(executable_path=r'/usr/bin/chromedriver')
-    options = webdriver.ChromeOptions()
-    options.add_argument('--headless')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    driver = webdriver.Chrome(service=service, options=options)
+    global agent, df
+    driver = webdriver.Chrome()
     driver.get("https://www.google.com")
     url = f'https://loadboard.doft.com/panel#fid=567831&oad={origin}%3B%20&odist={origin_radius}&olat=&olon=&dad={destination}%3B%20&ddist={destination_radius}&dlat=&dlon=&price=&permile='
     driver.get(url)
@@ -143,14 +138,16 @@ def create_csv(origin, destination, origin_radius, destination_radius):
     for item_list in overall:
         df.loc[len(df.index)] = item_list 
 
-    df.to_csv('./doft_loads.csv')
-
+    df.to_csv('../doft_loads.csv')
     agent = create_csv_agent(
         ChatOpenAI(temperature=0, model="gpt-3.5-turbo-0613"),
         "./doft_loads.csv",
         verbose=True,
         agent_type=AgentType.OPENAI_FUNCTIONS,
     )
+
+    # llm = OpenAI(api_token = ' ')
+    # df = SmartDataframe(df, config={"llm": llm})
 
 def search_bot(query):
     # # Compose a prompt for the model
@@ -163,7 +160,7 @@ def search_bot(query):
 
     # # Extract and return the model's response
     # return response.message.content
-    openai.api_key = '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'
+    openai.api_key = ' '
     chat_completion = openai.ChatCompletion.create(stream=True,
         model='gpt-3.5-turbo', messages=[{'role': 'user', 'content': query}])
 
@@ -202,7 +199,7 @@ def send_email_notification(subject, body, recipient_email):
     # Close the connection
     server.quit()
 
-os.environ["OPENAI_API_KEY"] = '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'
+os.environ["OPENAI_API_KEY"] = ' '
 
 agent = create_csv_agent(
     ChatOpenAI(temperature=0, model="gpt-3.5-turbo-0613"),
@@ -210,6 +207,9 @@ agent = create_csv_agent(
     verbose=True,
     agent_type=AgentType.OPENAI_FUNCTIONS,
 )
+# df = pd.DataFrame(columns = ['Posted', 'Pickup', 'Origin City', 'Origin State', 'Destination City', 'Destination State', 'Wt', 'Size', 'Dist', 'Truck', 'Price', 'Forecast Price', 'Price Per Mile', 'Forecast Per Mile', 'Company', 'Contact Links', 'Demand'])
+# llm = OpenAI(api_token = ' ')
+# df = SmartDataframe(df, config={"llm": llm})
 
 app = Flask(__name__)
 
@@ -251,7 +251,7 @@ def get_response():
                 bot_response = "Copilot Ready. Please ask further questions."
             elif 'Connect me to load boards' in input_text:
                 bot_response =  "Sure, please enter an abbreviated origin and destination from this list - Alaska (AK), Alabama (AL), Arkansas (AR), Arizona (AZ), California (CA), Colorado (CO), Connecticut (CT), District of Columbia (DC), Delaware (DE), Florida (FL), Georgia (GA), Hawaii (HI), Iowa (IA), Idaho (ID), Illinois (IL), Indiana (IN), Kansas (KS), Kentucky (KY), Louisiana (LA), Massachusetts (MA), Maryland (MD), Maine (ME), Michigan (MI), Minnesota (MN), Missouri (MO), Mississippi (MS), Montana (MT), North Carolina (NC), North Dakota (ND), Nebraska (NE), New Hampshire (NH), New Jersey (NJ), New Mexico (NM), Nevada (NV), New York (NY), Ohio (OH), Oklahoma (OK), Oregon (OR), Pennsylvania (PA), Rhode Island (RI), South Carolina (SC), South Dakota (SD), Tennessee (TN), Texas (TX), Utah (UT), Virginia (VA), Vermont (VT), Washington (WA), Wisconsin (WI), West Virginia (WV), Wyoming (WY), Alberta (AB), British Columbia (BC), Manitoba (MB), New Brunswick (NB), Newfoundland and Labrador (NL), Nova Scotia (NS), Northwest Territories (NT), Nunavut (NU), Ontario (ON), Prince Edward Island (PE), Quebec (QC), Saskatchewan (SK), Yukon (YT) \n \n \n. Enter as Origin to Destination within 100 miles of destination and origin"
-            else:
+            else:    
                 flag1 = False
                 flag2 = False
                 
@@ -284,7 +284,7 @@ def get_response():
 
                     send_email_notification(subject, body, recipient_mail)
 
- 
+
                 if flag1 or flag2: bot_response += 'Sent an email to the corresponding party. Please check inbox'
             
 
