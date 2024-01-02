@@ -195,7 +195,7 @@ def populate_table(input_text):
 
     return agent, origin,  [city_state['state_id'][ind_o[0]]], destination,  [city_state['state_id'][ind_d[0]]]
 
-os.environ["OPENAI_API_KEY"] = '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'
+os.environ["OPENAI_API_KEY"] = ''
 
 app = Flask(__name__)
 

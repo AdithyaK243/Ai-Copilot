@@ -59,7 +59,7 @@ def create_csv(origin, destination, origin_radius, destination_radius):
 
     # Add code for handling login (adjust these according to the structure of the login form)
     username = 'akk67730102@gmail.com'
-    password = 'AdiwinK1999@'
+    password = '******'
 
     # Locate the username and password input fields and submit button
     email_field = driver.find_element(By.ID, 'driver_email')
